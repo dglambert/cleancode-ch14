@@ -58,22 +58,22 @@ namespace CleanCode_Ch14.utilities.args
                 throw new ArgsException(INVALID_ARGUMENT_NAME, elementId, null);
         }
 
-        //private void parseArgumentStrings(List<String> argsList)
-        //{
-        //    for (currentArgument = argsList.GetEnumerator(); currentArgument.;)
-        //    {
-        //        String argString = currentArgument.next();
-        //        if (argString.StartsWith("-"))
-        //        {
-        //            parseArgumentCharacters(argString.Substring(1));
-        //        }
-        //        else
-        //        {
-        //            currentArgument.previous();
-        //            break;
-        //        }
-        //    }
-        //}
+        private void parseArgumentStrings(List<String> argsList)
+        {
+            for (currentArgument = argsList.GetEnumerator(); currentArgument.;)
+            {
+                String argString = currentArgument.next();
+                if (argString.StartsWith("-"))
+                {
+                    parseArgumentCharacters(argString.Substring(1));
+                }
+                else
+                {
+                    currentArgument.previous();
+                    break;
+                }
+            }
+        }
 
         //private void legacyParseArgumentStrings(List<String> argsList) throws ArgsException
         //{
@@ -95,9 +95,72 @@ namespace CleanCode_Ch14.utilities.args
         private void parseArgumentCharacters(string argChars)
         {
             for (int i = 0; i < argChars.Length; i++)
-                parseArgumentCharacter(argChars.charAt(i));
+            {
+                parseArgumentCharacter(argChars[i]);
+            }
         }
 
+        private void parseArgumentCharacter(char argChar)
+        {
+            ArgumentMarshaler m = null;
+            marshalers.TryGetValue(argChar, m);
+            if (m == null)
+            {
+                throw new ArgsException(UNEXPECTED_ARGUMENT, argChar, null);
+            }
+            else
+            {
+                argsFound.Add(argChar);
+                try
+                {
+                    m.set(currentArgument);
+                }
+                catch (ArgsException e)
+                {
+                    e.setErrorArgumentId(argChar);
+                    throw e;
+                }
+            }
+        }
+
+        public bool has(char arg)
+        {
+            return argsFound.Contains(arg);
+        }
+        public int nextArgument()
+        {
+            return currentArgument.nextIndex();
+        }
+        public bool getBoolean(char arg)
+        {
+            ArgumentMarshaler m = null;
+            marshalers.TryGetValue(arg, m);
+            return BooleanArgumentMarshaler.getValue(m);
+        }
+        public String getString(char arg)
+        {
+            ArgumentMarshaler m = null;
+            marshalers.TryGetValue(arg, m);
+            return StringArgumentMarshaler.getValue(m);
+        }
+        public int getInt(char arg)
+        {
+            ArgumentMarshaler m = null;
+            marshalers.TryGetValue(arg, m);
+            return IntegerArgumentMarshaler.getValue(m);
+        }
+        public double getDouble(char arg)
+        {
+            ArgumentMarshaler m = null;
+            marshalers.TryGetValue(arg, m);
+            return DoubleArgumentMarshaler.getValue(m);
+        }
+        public String[] getStringArray(char arg)
+        {
+            ArgumentMarshaler m = null;
+            marshalers.TryGetValue(arg, m);
+            return StringArrayArgumentMarshaler.getValue(m);
+        }
 
     }
 
@@ -115,53 +178,6 @@ public class Args
 
 
 
-private void parseArgumentCharacter(char argChar) throws ArgsException
-{
-    ArgumentMarshaler m = marshalers.get(argChar);
-    if (m == null)
-    {
-        throw new ArgsException(UNEXPECTED_ARGUMENT, argChar, null);
-    }
-    else
-    {
-        argsFound.add(argChar);
-        try
-        {
-            m.set(currentArgument);
-        }
-        catch (ArgsException e)
-        {
-            e.setErrorArgumentId(argChar);
-            throw e;
-        }
-    }
-    }
-public boolean has(char arg)
-{
-    return argsFound.contains(arg);
-}
-public int nextArgument()
-{
-    return currentArgument.nextIndex();
-}
-public boolean getBoolean(char arg)
-{
-    return BooleanArgumentMarshaler.getValue(marshalers.get(arg));
-}
-public String getString(char arg)
-{
-    return StringArgumentMarshaler.getValue(marshalers.get(arg));
-}
-public int getInt(char arg)
-{
-    return IntegerArgumentMarshaler.getValue(marshalers.get(arg));
-}
-public double getDouble(char arg)
-{
-    return DoubleArgumentMarshaler.getValue(marshalers.get(arg));
-}
-public String[] getStringArray(char arg)
-{
-    return StringArrayArgumentMarshaler.getValue(marshalers.get(arg));
-}
+
+
 }
