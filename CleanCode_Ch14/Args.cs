@@ -12,14 +12,14 @@ namespace CleanCode_Ch14.utilities.args
     {
         private Dictionary<char, ArgumentMarshaler> marshalers;
         private HashSet<char> argsFound;
-        private List<String>.Enumerator currentArgument;
+        private LinkedListNode<String> currentArgument;
 
         public Args(String schema, String[] args)
         {
             marshalers = new Dictionary<char, ArgumentMarshaler>();
             argsFound = new HashSet<char>();
             parseSchema(schema);
-            parseArgumentStrings(Arrays.asList(args));
+            parseArgumentStrings(args.ToList());
         }
 
         private void parseSchema(String schema)
@@ -58,9 +58,9 @@ namespace CleanCode_Ch14.utilities.args
                 throw new ArgsException(INVALID_ARGUMENT_NAME, elementId, null);
         }
 
-        private void parseArgumentStrings(List<String> argsList)
+        private void parseArgumentStrings(LinkedList<String> argsList)
         {
-            for (currentArgument = argsList.GetEnumerator(); currentArgument.;)
+            for (currentArgument = argsList.First(); currentArgument.;)
             {
                 String argString = currentArgument.next();
                 if (argString.StartsWith("-"))
